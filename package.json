@@ -181,5 +181,9 @@
   "create-react-native-library": {
     "type": "library",
     "version": "0.41.0"
+  },
+  "dependencies": {
+    "@types/lodash.throttle": "^4.1.9",
+    "lodash.throttle": "^4.1.1"
   }
 }

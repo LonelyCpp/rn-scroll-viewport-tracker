@@ -1,3 +1,4 @@
-export function multiply(a: number, b: number): Promise<number> {
-  return Promise.resolve(a * b);
-}
+import ScrollViewPortTracker from './ViewPortTracker/ScrollViewPortTracker';
+import ScrollViewPortTrackerItem from './ViewPortTracker/ScrollViewPortTrackerItem';
+
+export { ScrollViewPortTracker, ScrollViewPortTrackerItem };

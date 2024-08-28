@@ -1,30 +1,55 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'rn-scroll-viewport-tracker';
+import { useRef } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ScrollViewPortTracker,
+  ScrollViewPortTrackerItem,
+} from 'rn-scroll-viewport-tracker';
 
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
-
-  useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
-
+  const ref = useRef<{ reNotifyVisibleItems: () => void }>(null);
   return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
-    </View>
+    <ScrollViewPortTracker ref={ref}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {new Array(10).fill(0).map((_, i) => (
+          <View key={'item' + i} style={styles.box}>
+            <ScrollViewPortTrackerItem
+              name={'item' + i}
+              key={i}
+              onEnterViewport={() => {
+                console.log(`${i} enter`);
+              }}
+              onLeaveViewport={() => {
+                console.log(`${i} leave`);
+              }}
+              style={styles.trackerBox}
+            >
+              <Text
+                onPress={() => {
+                  ref.current?.reNotifyVisibleItems();
+                }}
+              >
+                {i}
+              </Text>
+            </ScrollViewPortTrackerItem>
+          </View>
+        ))}
+      </ScrollView>
+    </ScrollViewPortTracker>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  scrollContent: {
+    margin: 16,
   },
   box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+    width: 100,
+    height: 100,
+    backgroundColor: 'red',
+    margin: 100,
+  },
+  trackerBox: {
+    padding: 20,
+    borderWidth: 1,
   },
 });
