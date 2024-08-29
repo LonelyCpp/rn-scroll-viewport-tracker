@@ -12,6 +12,9 @@ interface Props extends ViewProps {
 function ScrollViewPortAwareView(props: Props): JSX.Element {
   const trackerData = useContext(ScrollViewPortTrackerContext);
 
+  const scrollParentRef = trackerData.getScrollViewRef();
+  const isScrollParentHorizontal = trackerData.horizontal;
+
   const isInViewportRef = useRef(false);
 
   const ownRef = useRef<View>(null);
@@ -25,6 +28,17 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
 
   const onEnterViewportRef = useRef(props.onEnterViewport);
   const onLeaveViewportRef = useRef(props.onLeaveViewport);
+
+  useEffect(() => {
+    if (ownRef.current) {
+      ownRef.current?.measureLayout(
+        scrollParentRef.current,
+        (x, y, width, height) => {
+          setOwnLayout({ x, y, width, height });
+        }
+      );
+    }
+  }, [scrollParentRef, isScrollParentHorizontal]);
 
   useEffect(() => {
     const unsub = trackerData.subscribe((scrollNotifyMeta) => {
@@ -43,6 +57,15 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
         },
         trackerData.minOverlapRatio
       );
+
+      console.log({
+        box1: {
+          x: ownLayout.x,
+          y: ownLayout.y,
+          width: ownLayout.width,
+          height: ownLayout.height,
+        },
+      });
 
       if (isInViewport !== isInViewportRef.current) {
         isInViewportRef.current = isInViewport;
@@ -70,15 +93,16 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
           props.onLayout(event);
         }
 
-        const scrollViewRef = trackerData.getScrollViewRef().current;
-
-        if (!scrollViewRef) {
+        if (!scrollParentRef) {
           throw new Error('could not acquire scroll-component ref');
         }
 
-        ownRef.current?.measureLayout(scrollViewRef, (x, y, width, height) => {
-          setOwnLayout({ x, y, width, height });
-        });
+        ownRef.current?.measureLayout(
+          scrollParentRef.current,
+          (x, y, width, height) => {
+            setOwnLayout({ x, y, width, height });
+          }
+        );
       }}
     />
   );
