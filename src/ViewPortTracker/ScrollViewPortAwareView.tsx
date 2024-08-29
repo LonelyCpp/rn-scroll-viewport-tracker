@@ -9,7 +9,7 @@ interface Props extends ViewProps {
   onLeaveViewport?: () => void;
 }
 
-function ScrollViewPortTrackerItem(props: Props): JSX.Element {
+function ScrollViewPortAwareView(props: Props): JSX.Element {
   const trackerData = useContext(ScrollViewPortTrackerContext);
 
   const isInViewportRef = useRef(false);
@@ -51,6 +51,8 @@ function ScrollViewPortTrackerItem(props: Props): JSX.Element {
         } else {
           onLeaveViewportRef.current?.();
         }
+      } else if (scrollNotifyMeta.forceNotifyEnter && isInViewport) {
+        onEnterViewportRef.current?.();
       }
     });
 
@@ -82,4 +84,4 @@ function ScrollViewPortTrackerItem(props: Props): JSX.Element {
   );
 }
 
-export default ScrollViewPortTrackerItem;
+export default ScrollViewPortAwareView;

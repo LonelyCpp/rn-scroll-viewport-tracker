@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   ScrollViewPortTracker,
-  ScrollViewPortTrackerItem,
+  ScrollViewPortAwareView,
 } from 'rn-scroll-viewport-tracker';
 
 export default function App() {
@@ -12,7 +12,7 @@ export default function App() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {new Array(10).fill(0).map((_, i) => (
           <View key={'item' + i} style={styles.box}>
-            <ScrollViewPortTrackerItem
+            <ScrollViewPortAwareView
               name={'item' + i}
               key={i}
               onEnterViewport={() => {
@@ -30,7 +30,7 @@ export default function App() {
               >
                 {i}
               </Text>
-            </ScrollViewPortTrackerItem>
+            </ScrollViewPortAwareView>
           </View>
         ))}
       </ScrollView>

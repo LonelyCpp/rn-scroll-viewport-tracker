@@ -1,4 +1,4 @@
-import type { ScrollBoxOffset } from '../types';
+import type { ScrollBoxOffset, ScrollNotifyCallbackArgs } from '../types';
 
 interface ScrollOffset {
   x: number;
@@ -14,7 +14,7 @@ class ScrollOffsetStore {
   private offset: ScrollOffset = { x: 0, y: 0 };
   private dimensions: ScrollViewDimensions = { width: 0, height: 0 };
 
-  private callbacks: ((offset: ScrollBoxOffset) => void)[] = [];
+  private callbacks: ((offset: ScrollNotifyCallbackArgs) => void)[] = [];
 
   private isNotifying = false;
 
@@ -31,12 +31,13 @@ class ScrollOffsetStore {
     }
   }
 
-  notify(): void {
+  notify({ forceNotifyEnter }: { forceNotifyEnter?: boolean } = {}): void {
     if (this.isNotifying) {
       this.callbacks.forEach((callback) =>
         callback({
           ...this.offset,
           ...this.dimensions,
+          forceNotifyEnter,
         })
       );
     }

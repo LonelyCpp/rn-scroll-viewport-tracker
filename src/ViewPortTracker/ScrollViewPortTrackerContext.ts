@@ -1,11 +1,13 @@
 import { createContext } from 'react';
-import type { ScrollBoxOffset, VoidFunction } from '../types';
+import type { ScrollNotifyCallbackArgs, VoidFunction } from '../types';
 
 interface ScrollViewPortTrackerContextValue {
   horizontal: boolean;
   minOverlapRatio: number;
   getScrollViewRef: () => React.RefObject<any>;
-  subscribe: (callback: (offset: ScrollBoxOffset) => void) => VoidFunction;
+  subscribe: (
+    callback: (offset: ScrollNotifyCallbackArgs) => void
+  ) => VoidFunction;
 }
 
 const ScrollViewPortTrackerContext =

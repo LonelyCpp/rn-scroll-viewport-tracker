@@ -1,4 +1,4 @@
 import ScrollViewPortTracker from './ViewPortTracker/ScrollViewPortTracker';
-import ScrollViewPortTrackerItem from './ViewPortTracker/ScrollViewPortTrackerItem';
+import ScrollViewPortAwareView from './ViewPortTracker/ScrollViewPortAwareView';
 
-export { ScrollViewPortTracker, ScrollViewPortTrackerItem };
+export { ScrollViewPortTracker, ScrollViewPortAwareView };

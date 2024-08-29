@@ -61,7 +61,7 @@ const ScrollViewPortTracker = forwardRef(function (
   useImperativeHandle(sRef, () => {
     return {
       reNotifyVisibleItems: () => {
-        // todo: implement
+        store.current.notify({ forceNotifyEnter: true });
       },
     };
   });
