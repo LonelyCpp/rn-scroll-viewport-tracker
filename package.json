@@ -1,6 +1,6 @@
 {
   "name": "rn-scroll-viewport-tracker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "a react native util to track elements inside a scrollable view",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
