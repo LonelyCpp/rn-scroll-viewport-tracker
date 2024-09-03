@@ -1,6 +1,6 @@
 # rn-scroll-viewport-tracker
 
-A react native util to track elements inside a scrollable view
+A react-native util to track elements inside a scrollable view
 
 ## Installation
 
