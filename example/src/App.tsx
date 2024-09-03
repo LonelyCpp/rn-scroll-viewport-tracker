@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View, ScrollView } from 'react-native';
 import {
   ScrollViewPortTracker,
   ScrollViewPortAwareView,
@@ -17,21 +17,25 @@ export default function App() {
         onPress={() => setIsHorizontal(!isHorizontal)}
       />
       <View style={styles.scrollContainer}>
-        <ScrollViewPortTracker ref={ref}>
+        <ScrollViewPortTracker ref={ref} minOverlapRatio={0.5}>
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             horizontal={isHorizontal}
           >
+            <View style={styles.buffer} />
+
             {new Array(3).fill(0).map((_, i) => (
-              <View key={'item' + i} style={styles.box}>
+              <View key={'item' + (i + 1)} style={styles.box}>
                 <TrackBox
-                  index={i}
+                  index={i + 1}
                   onPress={() => {
                     ref.current?.reNotifyVisibleItems();
                   }}
                 />
               </View>
             ))}
+
+            <View style={styles.buffer} />
           </ScrollView>
         </ScrollViewPortTracker>
       </View>
@@ -82,6 +86,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 100,
     margin: 16,
+    marginBottom: 50,
   },
   trackerBox: {
     flex: 1,
@@ -89,5 +94,8 @@ const styles = StyleSheet.create({
   },
   trackerBoxActive: {
     borderColor: 'green',
+  },
+  buffer: {
+    height: 1000,
   },
 });

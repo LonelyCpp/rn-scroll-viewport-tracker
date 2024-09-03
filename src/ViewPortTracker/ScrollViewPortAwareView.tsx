@@ -58,15 +58,6 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
         trackerData.minOverlapRatio
       );
 
-      console.log({
-        box1: {
-          x: ownLayout.x,
-          y: ownLayout.y,
-          width: ownLayout.width,
-          height: ownLayout.height,
-        },
-      });
-
       if (isInViewport !== isInViewportRef.current) {
         isInViewportRef.current = isInViewport;
         if (isInViewport) {
