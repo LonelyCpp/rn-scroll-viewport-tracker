@@ -32,7 +32,7 @@ interface ViewPortTrackerProps {
   }>;
 }
 
-interface ScrollViewPortTrackerRef {
+export interface ScrollViewPortTrackerRef {
   reNotifyVisibleItems: () => void;
 }
 
