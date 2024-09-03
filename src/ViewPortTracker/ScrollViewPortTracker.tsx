@@ -21,9 +21,9 @@ type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>;
 type EventCb<T> = ((event: T) => void) | undefined;
 
 interface ViewPortTrackerProps {
-  scrollEventThrottle?: number;
   minOverlapRatio?: number;
   disableTracking?: boolean;
+  scrollEventThrottle?: number;
   children: React.ReactElement<{
     ref?: Ref<any>;
     horizontal?: boolean;
