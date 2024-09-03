@@ -32,7 +32,7 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
 
     if (ownRef.current && notifyTracker) {
       ownRef.current?.measureLayout(
-        scrollParentRef.current,
+        scrollParentRef.current?.getNativeScrollRef(),
         (x, y, width, height) => {
           setOwnLayout({ x, y, width, height });
           notifyTracker();

@@ -1,5 +1,12 @@
 import { useRef, useState } from 'react';
-import { Button, StyleSheet, Text, View, ScrollView } from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  FlatList,
+} from 'react-native';
 import {
   ScrollViewPortTracker,
   ScrollViewPortAwareView,
@@ -9,45 +16,85 @@ export default function App() {
   const ref = useRef<{ reNotifyVisibleItems: () => void }>(null);
 
   const [isHorizontal, setIsHorizontal] = useState(false);
+  const [showFlatList, setUseFlatList] = useState(false);
+
+  const refFl = useRef<FlatList>(null);
+
+  refFl.current?.getNativeScrollRef();
 
   return (
     <View style={styles.container}>
       <Button
         title="toggle horizontal"
-        onPress={() => setIsHorizontal(!isHorizontal)}
+        onPress={() => setIsHorizontal((p) => !p)}
+      />
+      <Button
+        title="toggle scroll view type"
+        onPress={() => setUseFlatList((p) => !p)}
       />
       <View style={styles.scrollContainer}>
         <ScrollViewPortTracker ref={ref} minOverlapRatio={0.5}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            horizontal={isHorizontal}
-          >
-            <View
-              style={
-                isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
-              }
+          {showFlatList ? (
+            <FlatList
+              data={new Array(3).fill(0)}
+              horizontal={isHorizontal}
+              ListHeaderComponent={<Buffer isHorizontal={isHorizontal} />}
+              ListFooterComponent={<Buffer isHorizontal={isHorizontal} />}
+              renderItem={({ index }) => {
+                return (
+                  <View style={styles.box}>
+                    <TrackBox
+                      index={index + 1}
+                      onPress={() => {
+                        ref.current?.reNotifyVisibleItems();
+                      }}
+                    />
+                  </View>
+                );
+              }}
             />
+          ) : (
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              horizontal={isHorizontal}
+            >
+              <View
+                style={
+                  isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
+                }
+              />
 
-            {new Array(3).fill(0).map((_, i) => (
-              <View key={'item' + (i + 1)} style={styles.box}>
-                <TrackBox
-                  index={i + 1}
-                  onPress={() => {
-                    ref.current?.reNotifyVisibleItems();
-                  }}
-                />
-              </View>
-            ))}
+              {new Array(3).fill(0).map((_, i) => (
+                <View key={'item' + (i + 1)} style={styles.box}>
+                  <TrackBox
+                    index={i + 1}
+                    onPress={() => {
+                      ref.current?.reNotifyVisibleItems();
+                    }}
+                  />
+                </View>
+              ))}
 
-            <View
-              style={
-                isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
-              }
-            />
-          </ScrollView>
+              <View
+                style={
+                  isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
+                }
+              />
+            </ScrollView>
+          )}
         </ScrollViewPortTracker>
       </View>
     </View>
+  );
+}
+
+function Buffer(props: { isHorizontal: boolean }) {
+  const { isHorizontal } = props;
+
+  return (
+    <View
+      style={isHorizontal ? styles.bufferHorizontal : styles.bufferVertical}
+    />
   );
 }
 
