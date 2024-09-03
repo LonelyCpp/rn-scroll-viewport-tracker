@@ -107,6 +107,9 @@ const ScrollViewPortTracker = forwardRef(function (
       ): VoidFunction => {
         return store.current.subscribe(callback);
       },
+      notifyLayoutChange: () => {
+        store.current.notify();
+      },
     };
   }, [props.children.props.horizontal, props.minOverlapRatio]);
 

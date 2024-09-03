@@ -22,7 +22,11 @@ export default function App() {
             contentContainerStyle={styles.scrollContent}
             horizontal={isHorizontal}
           >
-            <View style={styles.buffer} />
+            <View
+              style={
+                isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
+              }
+            />
 
             {new Array(3).fill(0).map((_, i) => (
               <View key={'item' + (i + 1)} style={styles.box}>
@@ -35,7 +39,11 @@ export default function App() {
               </View>
             ))}
 
-            <View style={styles.buffer} />
+            <View
+              style={
+                isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
+              }
+            />
           </ScrollView>
         </ScrollViewPortTracker>
       </View>
@@ -84,18 +92,21 @@ const styles = StyleSheet.create({
   },
   box: {
     width: 200,
-    height: 100,
     margin: 16,
     marginBottom: 50,
   },
   trackerBox: {
     flex: 1,
     borderWidth: 5,
+    height: 100,
   },
   trackerBoxActive: {
     borderColor: 'green',
   },
-  buffer: {
+  bufferVertical: {
     height: 1000,
+  },
+  bufferHorizontal: {
+    width: 1000,
   },
 });

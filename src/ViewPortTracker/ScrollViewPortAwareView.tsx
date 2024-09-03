@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { type LayoutChangeEvent, View, type ViewProps } from 'react-native';
 import ScrollViewPortTrackerContext from './ScrollViewPortTrackerContext';
 import { doBoxesOverlap } from '../utils';
@@ -12,12 +12,13 @@ interface Props extends ViewProps {
 function ScrollViewPortAwareView(props: Props): JSX.Element {
   const trackerData = useContext(ScrollViewPortTrackerContext);
 
-  const scrollParentRef = trackerData.getScrollViewRef();
-  const isScrollParentHorizontal = trackerData.horizontal;
+  const onEnterViewportRef = useRef(props.onEnterViewport);
+  const onLeaveViewportRef = useRef(props.onLeaveViewport);
 
-  const isInViewportRef = useRef(false);
+  const scrollParentRef = trackerData.getScrollViewRef();
 
   const ownRef = useRef<View>(null);
+  const isInViewportRef = useRef(false);
 
   const [ownLayout, setOwnLayout] = useState({
     x: 0,
@@ -26,19 +27,30 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
     height: 0,
   });
 
-  const onEnterViewportRef = useRef(props.onEnterViewport);
-  const onLeaveViewportRef = useRef(props.onLeaveViewport);
+  const updateLayout = useCallback(() => {
+    const notifyTracker = trackerData.notifyLayoutChange;
 
-  useEffect(() => {
-    if (ownRef.current) {
+    if (ownRef.current && notifyTracker) {
       ownRef.current?.measureLayout(
         scrollParentRef.current,
         (x, y, width, height) => {
           setOwnLayout({ x, y, width, height });
+          notifyTracker();
         }
       );
     }
-  }, [scrollParentRef, isScrollParentHorizontal]);
+  }, [scrollParentRef, trackerData.notifyLayoutChange]);
+
+  const prevHorizontalRef = useRef(trackerData.horizontal);
+  useEffect(() => {
+    const hasScrollDirectionChanged =
+      prevHorizontalRef.current !== trackerData.horizontal;
+
+    if (hasScrollDirectionChanged) {
+      prevHorizontalRef.current = trackerData.horizontal;
+      updateLayout();
+    }
+  }, [trackerData.horizontal, updateLayout]);
 
   useEffect(() => {
     const unsub = trackerData.subscribe((scrollNotifyMeta) => {
@@ -88,12 +100,7 @@ function ScrollViewPortAwareView(props: Props): JSX.Element {
           throw new Error('could not acquire scroll-component ref');
         }
 
-        ownRef.current?.measureLayout(
-          scrollParentRef.current,
-          (x, y, width, height) => {
-            setOwnLayout({ x, y, width, height });
-          }
-        );
+        updateLayout();
       }}
     />
   );

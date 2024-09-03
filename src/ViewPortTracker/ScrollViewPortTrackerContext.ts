@@ -8,6 +8,7 @@ interface ScrollViewPortTrackerContextValue {
   subscribe: (
     callback: (offset: ScrollNotifyCallbackArgs) => void
   ) => VoidFunction;
+  notifyLayoutChange: () => void;
 }
 
 const ScrollViewPortTrackerContext =
@@ -16,6 +17,7 @@ const ScrollViewPortTrackerContext =
     minOverlapRatio: 0.2,
     subscribe: () => () => {},
     getScrollViewRef: () => ({ current: null }),
+    notifyLayoutChange: () => {},
   });
 
 export default ScrollViewPortTrackerContext;
