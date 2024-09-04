@@ -2,7 +2,7 @@
 
 A react-native util to track elements inside a scrollable view. Uses custom state handlers to minimize re-renders, and optimizes for performance.
 
-[!diagram](./docs/viewport.png)
+![diagram](./docs/viewport.png)
 
 ### Works with
 
