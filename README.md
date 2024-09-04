@@ -1,6 +1,14 @@
-# rn-scroll-viewport-tracker
+# Scroll Viewport Tracker
 
-A react-native util to track elements inside a scrollable view
+A react-native util to track elements inside a scrollable view. Uses custom state handlers to minimize re-renders, and optimizes for performance.
+
+[!diagram](./docs/viewport.png)
+
+### Works with
+
+- ScrollView
+- FlatList
+- SectionList
 
 ## Installation
 
@@ -59,4 +67,5 @@ MIT
 
 ---
 
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+- Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+- inspired by [`@skele/components`](https://github.com/netceteragroup/skele/tree/master/packages/components)
