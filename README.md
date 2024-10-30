@@ -57,6 +57,12 @@ import {
 | onEnterViewport | function |         | Callback when the element enters the viewport |
 | onLeaveViewport | function |         | Callback when the element leaves the viewport |
 
+## ScrollViewPortTracker Ref functions
+
+1. `reNotifyVisibleItems()`
+
+Call this function to explicitly re-trigger the `onEnterViewport` callback of visible items.
+
 ## Contributing
 
 See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
