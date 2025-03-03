@@ -1,14 +1,14 @@
 # Scroll Viewport Tracker
 
-A react-native util to track elements inside a scrollable view. Uses custom state handlers to minimize re-renders, and optimizes for performance.
+A high-performance utility for tracking elements inside a scrollable view in React Native.&#x20;
 
 ![diagram](./docs/viewport.png)
 
-### Works with
+## Supported Components
 
-- ScrollView
-- FlatList
-- SectionList
+- `ScrollView`
+- `FlatList`
+- `SectionList`
 
 ## Installation
 
@@ -18,7 +18,7 @@ npm install rn-scroll-viewport-tracker
 
 ## Usage
 
-```js
+```jsx
 import {
   ScrollViewPortTracker,
   ScrollViewPortAwareView,
@@ -30,8 +30,8 @@ import {
 
     <ScrollViewPortAwareView
       name="component2"
-      onEnterViewport={() => console.log('component 2 entered viewport')}
-      onLeaveViewport={() => console.log('component 2 left viewport')}
+      onEnterViewport={() => console.log('Component 2 entered viewport')}
+      onLeaveViewport={() => console.log('Component 2 left viewport')}
     >
       <Component2 />
     </ScrollViewPortAwareView>
@@ -41,37 +41,42 @@ import {
 </ScrollViewPortTracker>;
 ```
 
-## ScrollViewPortTracker Props
+## API Reference
 
-| Prop Name           | Type    | Default | Description                                                                                         |
-| ------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
-| minOverlapRatio     | number  | 0.2     | The minimum ratio of overlap between the viewport and the element to trigger the enter/leave events |
-| disableTracking     | boolean | false   | Disables tracking of the viewport                                                                   |
-| scrollEventThrottle | number  | 200     | Throttles the scroll events                                                                         |
+### `<ScrollViewPortTracker />`
 
-## ScrollViewPortAwareView Props
+Tracks elements within a scrollable view and triggers visibility events.
 
-| Prop Name       | Type     | Default | Description                                   |
-| --------------- | -------- | ------- | --------------------------------------------- |
-| name            | string   |         | The name of the element                       |
-| onEnterViewport | function |         | Callback when the element enters the viewport |
-| onLeaveViewport | function |         | Callback when the element leaves the viewport |
+| Prop Name             | Type    | Default | Description                                                       |
+| --------------------- | ------- | ------- | ----------------------------------------------------------------- |
+| `minOverlapRatio`     | number  | `0.2`   | The minimum overlap ratio required to trigger enter/leave events. |
+| `disableTracking`     | boolean | `false` | Disables viewport tracking.                                       |
+| `scrollEventThrottle` | number  | `200`   | Sets the throttle rate for scroll events (in milliseconds).       |
 
-## ScrollViewPortTracker Ref functions
+### `<ScrollViewPortAwareView />`
 
-1. `reNotifyVisibleItems()`
+Tracks the visibility of an individual element within a scrollable view.
 
-Call this function to explicitly re-trigger the `onEnterViewport` callback of visible items.
+| Prop Name         | Type     | Description                                              |
+| ----------------- | -------- | -------------------------------------------------------- |
+| `name`            | string   | A unique identifier for the element.                     |
+| `onEnterViewport` | function | Callback triggered when the element enters the viewport. |
+| `onLeaveViewport` | function | Callback triggered when the element leaves the viewport. |
+
+### Ref Methods
+
+#### `reNotifyVisibleItems()`
+
+Manually triggers the `onEnterViewport` callback for all currently visible items.
 
 ## Contributing
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+Contributions are welcome! Please refer to the Contributing Guide for details on how to get involved.
 
 ## License
 
-MIT
+This project is licensed under the MIT License.
 
 ---
 
-- Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
-- inspired by [`@skele/components`](https://github.com/netceteragroup/skele/tree/master/packages/components)
+Built with [create-react-native-library](https://github.com/callstack/react-native-builder-bob), inspired by [`@skele/components`](https://github.com/netceteragroup/skele/tree/master/packages/components).
