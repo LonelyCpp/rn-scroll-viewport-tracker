@@ -1,4 +1,4 @@
-import {
+import React, {
   type Ref,
   useRef,
   useMemo,
@@ -39,7 +39,7 @@ export interface ScrollViewPortTrackerRef {
 const ScrollViewPortTracker = forwardRef(function (
   props: ViewPortTrackerProps,
   sRef: Ref<ScrollViewPortTrackerRef>
-): JSX.Element {
+): React.JSX.Element {
   const scrollRef = useRef<Ref<any>>(null);
 
   const store = useRef(
@@ -87,11 +87,12 @@ const ScrollViewPortTracker = forwardRef(function (
       scrollRef.current = node;
 
       // Call the original ref, if any
-      // @ts-expect-error
-      const { ref } = props.children;
+      // In React 19, ref is now a regular prop, so access via props.ref
+      // Fallback to element.ref for React 18 compatibility
+      const ref = props.children.props?.ref ?? (props.children as any).ref;
       if (typeof ref === 'function') {
         ref(node);
-      } else if (ref !== null) {
+      } else if (ref !== null && ref !== undefined) {
         ref.current = node;
       }
     },

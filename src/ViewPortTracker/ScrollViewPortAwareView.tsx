@@ -1,4 +1,10 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { type LayoutChangeEvent, View, type ViewProps } from 'react-native';
 import ScrollViewPortTrackerContext from './ScrollViewPortTrackerContext';
 import { doBoxesOverlap } from '../utils';
@@ -9,7 +15,7 @@ interface Props extends ViewProps {
   onLeaveViewport?: () => void;
 }
 
-function ScrollViewPortAwareView(props: Props): JSX.Element {
+function ScrollViewPortAwareView(props: Props): React.JSX.Element {
   const trackerData = useContext(ScrollViewPortTrackerContext);
 
   const onEnterViewportRef = useRef(props.onEnterViewport);
