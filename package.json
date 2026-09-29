@@ -16,11 +16,22 @@
         "types": "./lib/typescript/commonjs/src/index.d.ts",
         "default": "./lib/commonjs/index.js"
       }
+    },
+    "./reanimated": {
+      "import": {
+        "types": "./lib/typescript/module/src/reanimated.d.ts",
+        "default": "./lib/module/reanimated.js"
+      },
+      "require": {
+        "types": "./lib/typescript/commonjs/src/reanimated.d.ts",
+        "default": "./lib/commonjs/reanimated.js"
+      }
     }
   },
   "files": [
     "src",
     "lib",
+    "reanimated",
     "android",
     "ios",
     "cpp",
@@ -80,6 +91,8 @@
     "react": "19.2.3",
     "react-native": "0.86.3",
     "react-native-builder-bob": "^0.30.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-worklets": "0.10.1",
     "release-it": "^15.0.0",
     "typescript": "^5.2.2"
   },
@@ -88,7 +101,17 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-reanimated": ">=4.1.0",
+    "react-native-worklets": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-reanimated": {
+      "optional": true
+    },
+    "react-native-worklets": {
+      "optional": true
+    }
   },
   "workspaces": [
     "example"

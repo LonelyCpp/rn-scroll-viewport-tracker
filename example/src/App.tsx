@@ -8,16 +8,26 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
+import Reanimated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import {
   ScrollViewPortTracker,
   ScrollViewPortAwareView,
 } from 'rn-scroll-viewport-tracker';
+import { ReanimatedScrollViewPortTracker } from 'rn-scroll-viewport-tracker/reanimated';
 
 const SCROLL_TYPES = [
   'ScrollView',
   'FlatList',
   'Animated.ScrollView',
   'Animated.FlatList',
+  'Reanimated.ScrollView',
+  'Reanimated.FlatList',
 ] as const;
 
 export default function App() {
@@ -28,10 +38,22 @@ export default function App() {
     useState<(typeof SCROLL_TYPES)[number]>('ScrollView');
 
   const isAnimated = scrollType.startsWith('Animated.');
+  const isReanimated = scrollType.startsWith('Reanimated.');
   const showFlatList = scrollType.endsWith('FlatList');
 
-  const ScrollComponent = isAnimated ? Animated.ScrollView : ScrollView;
-  const FlatListComponent = isAnimated ? Animated.FlatList : FlatList;
+  const ScrollComponent = isReanimated
+    ? Reanimated.ScrollView
+    : isAnimated
+      ? Animated.ScrollView
+      : ScrollView;
+  const FlatListComponent = isReanimated
+    ? Reanimated.FlatList
+    : isAnimated
+      ? Animated.FlatList
+      : FlatList;
+  const Tracker = isReanimated
+    ? ReanimatedScrollViewPortTracker
+    : ScrollViewPortTracker;
 
   // Native-driven scroll offset, used to animate the progress bar.
   const scrollOffset = useRef(new Animated.Value(0)).current;
@@ -51,7 +73,32 @@ export default function App() {
       ),
     [isHorizontal, scrollOffset]
   );
-  const onScroll = isAnimated ? onAnimatedScroll : undefined;
+
+  // Reanimated worklet scroll handler, used to animate the progress bar.
+  const reanimatedOffset = useSharedValue(0);
+  const onReanimatedScroll = useAnimatedScrollHandler((event) => {
+    reanimatedOffset.value = isHorizontal
+      ? event.contentOffset.x
+      : event.contentOffset.y;
+  });
+  const reanimatedProgressStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scaleX: interpolate(
+          reanimatedOffset.value,
+          [0, 2000],
+          [0, 1],
+          Extrapolation.CLAMP
+        ),
+      },
+    ],
+  }));
+
+  const onScroll = isReanimated
+    ? onReanimatedScroll
+    : isAnimated
+      ? onAnimatedScroll
+      : undefined;
 
   return (
     <View style={styles.container}>
@@ -89,9 +136,14 @@ export default function App() {
             ]}
           />
         )}
+        {isReanimated && (
+          <Reanimated.View
+            style={[styles.progressBar, reanimatedProgressStyle]}
+          />
+        )}
       </View>
       <View style={styles.scrollContainer}>
-        <ScrollViewPortTracker ref={ref} minOverlapRatio={0.5}>
+        <Tracker ref={ref} minOverlapRatio={0.5}>
           {showFlatList ? (
             <FlatListComponent
               key={scrollType}
@@ -144,7 +196,7 @@ export default function App() {
               />
             </ScrollComponent>
           )}
-        </ScrollViewPortTracker>
+        </Tracker>
       </View>
     </View>
   );

@@ -1,0 +1,5 @@
+{
+  "main": "../lib/commonjs/reanimated.js",
+  "module": "../lib/module/reanimated.js",
+  "types": "../lib/typescript/commonjs/src/reanimated.d.ts"
+}
