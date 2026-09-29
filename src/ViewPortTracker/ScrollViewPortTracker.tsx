@@ -4,6 +4,7 @@ import {
   useRef,
   useMemo,
   useEffect,
+  useCallback,
   forwardRef,
   version,
   cloneElement,
@@ -24,6 +25,27 @@ const IS_REACT_19_OR_NEWER = parseInt(version, 10) >= 19;
 
 type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>;
 type EventCb<T> = ((event: T) => void) | undefined;
+
+// `Animated.event(..., { useNativeDriver: true })` returns an `AnimatedEvent`
+// object instead of a function. It must be passed through untouched, so we
+// observe scroll events through its listener list instead.
+interface NativeAnimatedEvent {
+  __isNative: boolean;
+  __addListener: (callback: (event: ScrollEvent) => void) => void;
+  __removeListener: (callback: (event: ScrollEvent) => void) => void;
+}
+
+function isNativeAnimatedEvent(
+  handler: unknown
+): handler is NativeAnimatedEvent {
+  return (
+    typeof handler === 'object' &&
+    handler !== null &&
+    (handler as NativeAnimatedEvent).__isNative === true &&
+    typeof (handler as NativeAnimatedEvent).__addListener === 'function' &&
+    typeof (handler as NativeAnimatedEvent).__removeListener === 'function'
+  );
+}
 
 interface ViewPortTrackerProps {
   minOverlapRatio?: number;
@@ -63,6 +85,39 @@ const ScrollViewPortTracker = forwardRef(function (
     }, props.scrollEventThrottle ?? 200);
   }, [props.scrollEventThrottle]);
 
+  const handleScroll = useCallback(
+    (event: ScrollEvent) => {
+      setOffset(event.nativeEvent.contentOffset);
+    },
+    [setOffset]
+  );
+
+  const childOnScroll: unknown = props.children.props.onScroll;
+
+  useEffect(() => {
+    if (!isNativeAnimatedEvent(childOnScroll)) {
+      return;
+    }
+
+    childOnScroll.__addListener(handleScroll);
+    return () => {
+      childOnScroll.__removeListener(handleScroll);
+    };
+  }, [childOnScroll, handleScroll]);
+
+  useEffect(() => {
+    if (
+      __DEV__ &&
+      childOnScroll != null &&
+      typeof childOnScroll !== 'function' &&
+      !isNativeAnimatedEvent(childOnScroll)
+    ) {
+      console.warn(
+        'ScrollViewPortTracker: unsupported onScroll handler on the scroll component; viewport tracking will not receive scroll events.'
+      );
+    }
+  }, [childOnScroll]);
+
   useImperativeHandle(sRef, () => {
     return {
       reNotifyVisibleItems: () => {
@@ -71,14 +126,24 @@ const ScrollViewPortTracker = forwardRef(function (
     };
   });
 
-  const ClonedChild = cloneElement(props.children, {
-    onScroll: (event: ScrollEvent) => {
-      if (typeof props.children.props.onScroll === 'function') {
-        props.children.props.onScroll(event);
-      }
+  // Only replace `onScroll` when it is a plain function (or missing). Anything
+  // else (a native `AnimatedEvent`, a worklet handler, ...) is left as is so
+  // the scroll component keeps driving its animations.
+  const scrollProps =
+    childOnScroll == null || typeof childOnScroll === 'function'
+      ? {
+          onScroll: (event: ScrollEvent) => {
+            if (typeof childOnScroll === 'function') {
+              childOnScroll(event);
+            }
 
-      setOffset(event.nativeEvent.contentOffset);
-    },
+            handleScroll(event);
+          },
+        }
+      : {};
+
+  const ClonedChild = cloneElement(props.children, {
+    ...scrollProps,
     onLayout: (event: LayoutChangeEvent) => {
       if (typeof props.children.props.onLayout === 'function') {
         props.children.props.onLayout(event);

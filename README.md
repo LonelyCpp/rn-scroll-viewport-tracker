@@ -9,6 +9,7 @@ A high-performance utility for tracking elements inside a scrollable view in Rea
 - `ScrollView`
 - `FlatList`
 - `SectionList`
+- `Animated.ScrollView`, `Animated.FlatList` and `Animated.SectionList` from `react-native`, including `Animated.event` with `useNativeDriver: true`
 
 ## Installation
 
@@ -38,6 +39,25 @@ import {
 
     <Component3 />
   </ScrollView>
+</ScrollViewPortTracker>;
+```
+
+### Animated scroll views
+
+The tracker works with `onScroll={Animated.event(...)}` whether or not you use the native driver. The native-driven event is passed through unchanged, so your animation keeps running on the UI thread.
+
+```jsx
+const scrollY = useRef(new Animated.Value(0)).current;
+
+<ScrollViewPortTracker>
+  <Animated.FlatList
+    data={data}
+    renderItem={renderItem}
+    onScroll={Animated.event(
+      [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+      { useNativeDriver: true }
+    )}
+  />
 </ScrollViewPortTracker>;
 ```
 
