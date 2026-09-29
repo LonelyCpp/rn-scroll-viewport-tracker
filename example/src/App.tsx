@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   Button,
   StyleSheet,
   Text,
@@ -12,15 +13,45 @@ import {
   ScrollViewPortAwareView,
 } from 'rn-scroll-viewport-tracker';
 
+const SCROLL_TYPES = [
+  'ScrollView',
+  'FlatList',
+  'Animated.ScrollView',
+  'Animated.FlatList',
+] as const;
+
 export default function App() {
   const ref = useRef<{ reNotifyVisibleItems: () => void }>(null);
 
   const [isHorizontal, setIsHorizontal] = useState(false);
-  const [showFlatList, setUseFlatList] = useState(false);
+  const [scrollType, setScrollType] =
+    useState<(typeof SCROLL_TYPES)[number]>('ScrollView');
 
-  const refFl = useRef<FlatList>(null);
+  const isAnimated = scrollType.startsWith('Animated.');
+  const showFlatList = scrollType.endsWith('FlatList');
 
-  refFl.current?.getNativeScrollRef();
+  const ScrollComponent = isAnimated ? Animated.ScrollView : ScrollView;
+  const FlatListComponent = isAnimated ? Animated.FlatList : FlatList;
+
+  // Native-driven scroll offset, used to animate the progress bar.
+  const scrollOffset = useRef(new Animated.Value(0)).current;
+  const onAnimatedScroll = useMemo(
+    () =>
+      Animated.event(
+        [
+          {
+            nativeEvent: {
+              contentOffset: isHorizontal
+                ? { x: scrollOffset }
+                : { y: scrollOffset },
+            },
+          },
+        ],
+        { useNativeDriver: true }
+      ),
+    [isHorizontal, scrollOffset]
+  );
+  const onScroll = isAnimated ? onAnimatedScroll : undefined;
 
   return (
     <View style={styles.container}>
@@ -29,13 +60,42 @@ export default function App() {
         onPress={() => setIsHorizontal((p) => !p)}
       />
       <Button
-        title="toggle scroll view type"
-        onPress={() => setUseFlatList((p) => !p)}
+        title={`scroll view type: ${scrollType}`}
+        onPress={() =>
+          setScrollType(
+            (p) =>
+              SCROLL_TYPES[
+                (SCROLL_TYPES.indexOf(p) + 1) % SCROLL_TYPES.length
+              ] ?? 'ScrollView'
+          )
+        }
       />
+      <View style={styles.progressTrack}>
+        {isAnimated && (
+          <Animated.View
+            style={[
+              styles.progressBar,
+              {
+                transform: [
+                  {
+                    scaleX: scrollOffset.interpolate({
+                      inputRange: [0, 2000],
+                      outputRange: [0, 1],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        )}
+      </View>
       <View style={styles.scrollContainer}>
         <ScrollViewPortTracker ref={ref} minOverlapRatio={0.5}>
           {showFlatList ? (
-            <FlatList
+            <FlatListComponent
+              key={scrollType}
+              onScroll={onScroll}
               data={new Array(3).fill(0)}
               horizontal={isHorizontal}
               ListHeaderComponent={<Buffer isHorizontal={isHorizontal} />}
@@ -54,7 +114,9 @@ export default function App() {
               }}
             />
           ) : (
-            <ScrollView
+            <ScrollComponent
+              key={scrollType}
+              onScroll={onScroll}
               contentContainerStyle={styles.scrollContent}
               horizontal={isHorizontal}
             >
@@ -80,7 +142,7 @@ export default function App() {
                   isHorizontal ? styles.bufferHorizontal : styles.bufferVertical
                 }
               />
-            </ScrollView>
+            </ScrollComponent>
           )}
         </ScrollViewPortTracker>
       </View>
@@ -127,6 +189,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  progressTrack: {
+    width: 200,
+    height: 6,
+    marginTop: 12,
+    backgroundColor: 'lightgray',
+  },
+  progressBar: {
+    flex: 1,
+    backgroundColor: 'green',
+    transformOrigin: 'left',
   },
   scrollContainer: {
     height: 500,
