@@ -1,9 +1,11 @@
 import {
   type Ref,
+  type ReactElement,
   useRef,
   useMemo,
   useEffect,
   forwardRef,
+  version,
   cloneElement,
   useImperativeHandle,
 } from 'react';
@@ -17,6 +19,9 @@ import ScrollOffsetStore from './ScrollOffsetStore';
 import type { ScrollBoxOffset, VoidFunction } from '../types';
 import ScrollViewPortTrackerContext from './ScrollViewPortTrackerContext';
 
+// React 19 moved `ref` into props; reading `element.ref` there logs an error.
+const IS_REACT_19_OR_NEWER = parseInt(version, 10) >= 19;
+
 type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>;
 type EventCb<T> = ((event: T) => void) | undefined;
 
@@ -24,7 +29,7 @@ interface ViewPortTrackerProps {
   minOverlapRatio?: number;
   disableTracking?: boolean;
   scrollEventThrottle?: number;
-  children: React.ReactElement<{
+  children: ReactElement<{
     ref?: Ref<any>;
     horizontal?: boolean;
     onScroll?: EventCb<ScrollEvent>;
@@ -39,7 +44,7 @@ export interface ScrollViewPortTrackerRef {
 const ScrollViewPortTracker = forwardRef(function (
   props: ViewPortTrackerProps,
   sRef: Ref<ScrollViewPortTrackerRef>
-): JSX.Element {
+): ReactElement {
   const scrollRef = useRef<Ref<any>>(null);
 
   const store = useRef(
@@ -87,11 +92,13 @@ const ScrollViewPortTracker = forwardRef(function (
       scrollRef.current = node;
 
       // Call the original ref, if any
-      // @ts-expect-error
-      const { ref } = props.children;
+      const ref = IS_REACT_19_OR_NEWER
+        ? props.children.props.ref
+        : // @ts-expect-error `element.ref` is not in the React 19 types
+          props.children.ref;
       if (typeof ref === 'function') {
         ref(node);
-      } else if (ref !== null) {
+      } else if (ref != null) {
         ref.current = node;
       }
     },
