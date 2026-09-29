@@ -2,7 +2,8 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "rn-scroll-viewport-tracker": ["./src/index"]
+      "rn-scroll-viewport-tracker": ["./src/index"],
+      "rn-scroll-viewport-tracker/reanimated": ["./src/reanimated"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
