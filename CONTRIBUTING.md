@@ -49,6 +49,25 @@ To run the example app on Web:
 yarn example web
 ```
 
+### Hop test kit
+
+The example app includes a hop test kit for `ReanimatedScrollViewPortTracker`. It counts how many scroll offsets cross from the UI thread to the JS thread, and checks that JS ends up with the offset the scroll view came to rest at. Unit tests can't cover this because Jest has no UI thread, so run the kit on a real device after changing the tracker's scroll handling.
+
+1. Build a development build onto a connected device from the `example` directory: `npx expo run:ios --device` or `npx expo run:android --device`.
+2. In the example app, tap **hop test kit**, then **run scripted scenarios**. Don't touch the screen while it runs (about 15 seconds).
+3. Then drag, fling, and catch a fling and hold it still. Each gesture logs one line once scrolling has been idle for 800 ms.
+
+Results show on screen and in the Metro terminal, prefixed with `[HOP-KIT]`. Each line starts with `PASS` or `FAIL`:
+
+- `ui`: scroll events seen by the scroll view's own worklet handler.
+- `js`: offsets that reached JS. With the default 200 ms `scrollEventThrottle` on a 60 Hz screen, expect about a tenth of `ui`.
+- `childEndDrag` / `childMomentumEnd`: the scroll view's own end handlers still ran. On Android, `childMomentumEnd` should go up after a fling.
+- `jsY` / `actualY`: the offset JS has, and the offset the scroll view is at.
+
+On iOS, every non-animated `scrollTo` emits a momentum end event, so the scenario with 60 `scrollTo` calls sends about one offset per call. That's expected.
+
+To start a run without touching the device, attach React Native DevTools and evaluate `__hopTestKit.run()`.
+
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
 
 ```sh
