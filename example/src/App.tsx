@@ -20,6 +20,7 @@ import {
   ScrollViewPortAwareView,
 } from 'rn-scroll-viewport-tracker';
 import { ReanimatedScrollViewPortTracker } from 'rn-scroll-viewport-tracker/reanimated';
+import HopTestKit from './HopTestKit';
 
 const SCROLL_TYPES = [
   'ScrollView',
@@ -31,6 +32,16 @@ const SCROLL_TYPES = [
 ] as const;
 
 export default function App() {
+  const [showHopTestKit, setShowHopTestKit] = useState(false);
+
+  return showHopTestKit ? (
+    <HopTestKit onClose={() => setShowHopTestKit(false)} />
+  ) : (
+    <Example onOpenHopTestKit={() => setShowHopTestKit(true)} />
+  );
+}
+
+function Example({ onOpenHopTestKit }: { onOpenHopTestKit: () => void }) {
   const ref = useRef<{ reNotifyVisibleItems: () => void }>(null);
 
   const [isHorizontal, setIsHorizontal] = useState(false);
@@ -102,6 +113,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Button title="hop test kit" onPress={onOpenHopTestKit} />
       <Button
         title="toggle horizontal"
         onPress={() => setIsHorizontal((p) => !p)}

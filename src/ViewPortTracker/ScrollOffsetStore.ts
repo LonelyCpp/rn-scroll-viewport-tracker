@@ -22,11 +22,18 @@ class ScrollOffsetStore {
     this.isNotifying = isNotifying;
   }
 
-  setIsNotifying(val: boolean): void {
+  /**
+   * @param currentOffset when notifying resumes, the offset to notify with,
+   * for trackers that stop reporting offsets while disabled.
+   */
+  setIsNotifying(val: boolean, currentOffset?: ScrollOffset): void {
     const shouldNotify = val && !this.isNotifying;
     this.isNotifying = val;
 
     if (shouldNotify) {
+      if (currentOffset) {
+        this.offset = currentOffset;
+      }
       this.notify();
     }
   }

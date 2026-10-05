@@ -97,6 +97,10 @@ const scrollHandler = useAnimatedScrollHandler((event) => {
 
 It also accepts any `onScroll` handler that `ScrollViewPortTracker` supports, such as a plain function.
 
+The scroll view must be a Reanimated component, such as `Animated.ScrollView` or `Animated.FlatList`. A plain React Native `ScrollView` without an `onScroll` handler isn't tracked under `ReanimatedScrollViewPortTracker`; use `ScrollViewPortTracker` for it.
+
+When your `onScroll` is a Reanimated handler, or you don't pass one, `scrollEventThrottle` is applied on the UI thread, so throttled-out scroll events never reach the JS thread. The final offset is always reported when a drag or fling ends, or when the scroll view is held still.
+
 If you put a Reanimated scroll handler under `ScrollViewPortTracker`, your animation keeps working but the viewport isn't tracked. A development-only warning points you to `ReanimatedScrollViewPortTracker`.
 
 ## API Reference

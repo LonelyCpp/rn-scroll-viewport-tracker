@@ -1,6 +1,6 @@
 {
   "name": "rn-scroll-viewport-tracker",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "a react native util to track elements inside a scrollable view",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
@@ -77,10 +77,13 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
+    "@react-native/babel-preset": "0.86.3",
     "@react-native/eslint-config": "^0.86.3",
+    "@react-native/jest-preset": "0.86.3",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^29.5.5",
     "@types/react": "^19.2.0",
+    "@types/react-test-renderer": "^19.1.0",
     "commitlint": "^17.0.2",
     "del-cli": "^5.1.0",
     "eslint": "^8.51.0",
@@ -93,6 +96,7 @@
     "react-native-builder-bob": "^0.30.0",
     "react-native-reanimated": "4.5.1",
     "react-native-worklets": "0.10.1",
+    "react-test-renderer": "19.2.3",
     "release-it": "^15.0.0",
     "typescript": "^5.2.2"
   },
@@ -118,11 +122,23 @@
   ],
   "packageManager": "yarn@3.6.1",
   "jest": {
-    "preset": "react-native",
+    "preset": "@react-native/jest-preset",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
-    ]
+    ],
+    "transform": {
+      "\\.[jt]sx?$": [
+        "babel-jest",
+        {
+          "configFile": false,
+          "babelrc": false,
+          "presets": [
+            "module:@react-native/babel-preset"
+          ]
+        }
+      ]
+    }
   },
   "commitlint": {
     "extends": [
