@@ -4,6 +4,7 @@ import {
   useRef,
   useMemo,
   useEffect,
+  useCallback,
   version,
   cloneElement,
   useImperativeHandle,
@@ -46,12 +47,20 @@ export type SetScrollOffset = (offset: { x: number; y: number }) => void;
  * Shared tracker logic: owns the offset store, the context and the child's
  * `ref` / `onLayout` wiring. Each tracker only decides how scroll offsets
  * reach `setOffset`, and passes the resulting scroll props to `renderTracker`.
+ *
+ * `getCurrentOffset` is for trackers that stop reporting offsets while
+ * `disableTracking` is set: it supplies the offset to notify with when
+ * tracking resumes.
  */
 function useViewPortTracker(
   props: ViewPortTrackerProps,
-  sRef: Ref<ScrollViewPortTrackerRef>
+  sRef: Ref<ScrollViewPortTrackerRef>,
+  getCurrentOffset?: () => { x: number; y: number }
 ): {
-  setOffset: SetScrollOffset;
+  /** Throttled by `scrollEventThrottle`, for JS-side scroll handlers. */
+  setOffset: SetScrollOffset & { cancel: () => void };
+  /** Unthrottled, for callers that throttle before calling it. */
+  setOffsetImmediate: SetScrollOffset;
   renderTracker: (scrollProps: { onScroll?: unknown }) => ReactElement;
 } {
   const scrollRef = useRef<Ref<any>>(null);
@@ -62,9 +71,19 @@ function useViewPortTracker(
     })
   );
 
+  const getCurrentOffsetRef = useRef(getCurrentOffset);
+  getCurrentOffsetRef.current = getCurrentOffset;
+
   useEffect(() => {
-    store.current.setIsNotifying(!props.disableTracking);
+    store.current.setIsNotifying(
+      !props.disableTracking,
+      props.disableTracking ? undefined : getCurrentOffsetRef.current?.()
+    );
   }, [props.disableTracking]);
+
+  const setOffsetImmediate = useCallback((offset: { x: number; y: number }) => {
+    store.current.setOffset(offset);
+  }, []);
 
   const setOffset = useMemo(() => {
     return throttle((offset: { x: number; y: number }) => {
@@ -131,7 +150,7 @@ function useViewPortTracker(
     );
   };
 
-  return { setOffset, renderTracker };
+  return { setOffset, setOffsetImmediate, renderTracker };
 }
 
 export default useViewPortTracker;
